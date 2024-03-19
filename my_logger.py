@@ -1,17 +1,21 @@
-# Setup logger to my own tastes for debugging purposes
+import pathlib
 import os
 import configparser
 import logging
 
 try:
-    target = f"{__file__}{'\\..\\..\\config.ini'}"
-    fallback = f"C:\\Users\\{os.getlogin()}\\Desktop\\otolith.log"
+    # Get path to the directory containing this script
+    script_dir = pathlib.Path(__file__).resolve().parent
+
+    # Construct paths using pathlib
+    target = script_dir / ".." / "config.ini"
+    fallback = pathlib.Path.home() / "Desktop" / "otolith.log"
 
     config = configparser.ConfigParser()
-    config.read(target)
+    config.read(str(target))
 
     if not logging.getLogger().hasHandlers():
-        logging.basicConfig(filename=config['Logfile'].get('filepath',fallback),
+        logging.basicConfig(filename=config['Logfile'].get('filepath', fallback),
                             filemode='w',
                             level=logging.INFO,
                             format='%(asctime)s [%(filename)s:%(lineno)d] %(message)s',
@@ -20,12 +24,12 @@ try:
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
         logging.getLogger('').addHandler(console)
-        
-        def info(msg:str):
+
+        def info(msg: str):
             logging.info(msg)
-            
-        def exception(msg:str):
+
+        def exception(msg: str):
             logging.exception(msg)
-                              
+
 except Exception as e:
     raise ImportError("Error importing my_logger")
